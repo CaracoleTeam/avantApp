@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "823931892563",
+    "firebase_url": "https://avant-63dc2.firebaseio.com",
+    "project_id": "avant-63dc2",
+    "storage_bucket": "avant-63dc2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823931892563:android:44f78476127dcd88",
+        "android_client_info": {
+          "package_name": "com.avant.joao.avant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "823931892563-7bu0ufgrf2pft5t7ijcnklgdangqb6cg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.avant.joao.avant",
+            "certificate_hash": "9bc14e46bcdc4e4d969a0c369deaa5f5cedc7b1d"
+          }
+        },
+        {
+          "client_id": "823931892563-3f2veot7i8cjaa1g61836ga2maatlgl4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwEauu1NnMyKLIucX1RMeeyzunAEIFnNc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "823931892563-3f2veot7i8cjaa1g61836ga2maatlgl4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Avant</string>
+    <string name="login_label">Faça o login com o google para continuar</string>
+
+    <string name="menu_item1">Pacientes</string>
+    <string name="menu_item2">Conectar Dispositivo</string>
+    <string name="menu_item3">Sair</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
