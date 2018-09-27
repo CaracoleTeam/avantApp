@@ -1,8 +1,12 @@
 package com.avant.joao.avant;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +19,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.avant.joao.avant.fragments.BtFragment;
+import com.avant.joao.avant.fragments.PatientFragment;
 import com.avant.joao.avant.tools.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
 
         Intent authenticationIntent  = getIntent();
         mUser = (User) authenticationIntent.getSerializableExtra("user");
@@ -53,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
                         switch (item.getItemId()){
                             case R.id.nav_pacientes:
-                                Log.d("clicou","em pacientes");
+                                PatientFragment patientFragment = new PatientFragment();
+                                ft.add(R.id.fragments_container,patientFragment);
+                            case R.id.nav_bluetooth:
                                 BtFragment btFragment = new BtFragment();
                                 ft.add(R.id.fragments_container,btFragment);
                         }
@@ -68,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         );
 
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
