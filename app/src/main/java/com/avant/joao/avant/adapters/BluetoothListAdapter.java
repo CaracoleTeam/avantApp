@@ -3,6 +3,7 @@ package com.avant.joao.avant.adapters;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,7 @@ public class BluetoothListAdapter extends RecyclerView.Adapter<BluetoothListAdap
 
 
 
-    private ArrayList<BluetoothDevice> mBluetoothNames;
+    public ArrayList<BluetoothDevice> mBluetoothNames;
 
     private Context mContext;
 
@@ -44,7 +45,16 @@ public class BluetoothListAdapter extends RecyclerView.Adapter<BluetoothListAdap
 
     @Override
     public void onBindViewHolder(BluetothListViewHolder holder, int position) {
-        holder.mBluetoothDeviceName.setText(mBluetoothNames.get(position).getName());
+        BluetoothDevice device = mBluetoothNames.get(position);
+        String textToDisplay;
+
+        if(device.getName() == null){
+            textToDisplay = device.getAddress();
+        }else{
+            textToDisplay = device.getName();
+        }
+
+        holder.mBluetoothDeviceName.setText(textToDisplay);
 
         holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
