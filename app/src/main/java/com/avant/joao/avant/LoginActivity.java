@@ -4,12 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.avant.joao.avant.tools.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -125,10 +122,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void updateUI(FirebaseUser account){
 
         if(account != null){
-            User user = new User(account.getDisplayName(),account.getEmail());
-
             Intent startMainActivityIntent = new Intent(this,MainActivity.class);
-            startMainActivityIntent.putExtra("user",user);
             startActivity(startMainActivityIntent);
         }
     }

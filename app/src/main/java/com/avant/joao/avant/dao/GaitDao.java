@@ -1,5 +1,6 @@
 package com.avant.joao.avant.dao;
 
+
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -7,23 +8,15 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.avant.joao.avant.entities.Gait;
-import com.avant.joao.avant.entities.PatientEntity;
-
 
 import java.util.List;
 
 @Dao
-public interface PatientDao {
-
-    @Query("SELECT * FROM patient")
-    LiveData<List<PatientEntity>> getAll();
-
-
-    @Query("SELECT * FROM patient WHERE pid =:pid")
-    LiveData<PatientEntity> getPatient(int pid);
+public interface GaitDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public long insertUsers(PatientEntity patient);
+    public void insertGait(Gait gait);
 
-
+    @Query("SELECT * FROM gait WHERE patientId =:pid")
+    LiveData<List<Gait>> getPatientGaits(final int pid);
 }

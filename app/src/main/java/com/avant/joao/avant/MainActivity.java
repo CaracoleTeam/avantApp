@@ -1,19 +1,19 @@
 package com.avant.joao.avant;
 
-import android.app.AlertDialog;
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.persistence.room.Room;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -25,35 +25,48 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.avant.joao.avant.databases.PatientDatabase;
 import com.avant.joao.avant.entities.PatientEntity;
 import com.avant.joao.avant.fragments.BtFragment;
 import com.avant.joao.avant.fragments.PatientFragment;
-import com.avant.joao.avant.tools.Patient;
-import com.avant.joao.avant.tools.User;
+import com.avant.joao.avant.services.BluetoothLeService;
 import com.avant.joao.avant.viewModels.PatientViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.w3c.dom.Text;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private User mUser;
+
     private DrawerLayout mDrawerLayout;
     private ActionBar mActionBar;
+    private FirebaseAuth mAuth;
+
+    private final static int ADD_PATIENT_CODE = 9000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
 
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        Intent authenticationIntent  = getIntent();
-        mUser = (User) authenticationIntent.getSerializableExtra("user");
+        Map<String, Object> user = new HashMap<>();
+        user.put("name", mUser.getDisplayName());
+        user.put("email",mUser.getEmail());
+
+        db.collection("users").document(mUser.getUid()).set(user);
+
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         PatientViewModel patientViewModel = ViewModelProviders.of(this).get(PatientViewModel.class);
 
-        patientViewModel.insertPatient(new PatientEntity("João",19));
+
         patientViewModel.getAllPatients().observe(this, new Observer<List<PatientEntity>>() {
             @Override
             public void onChanged(@Nullable List<PatientEntity> patientEntities) {
@@ -75,7 +88,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    2
+            );
+        }else{
+
+        }
 
 
         NavigationView mNavigationView = findViewById(R.id.nav_view);
@@ -83,6 +106,10 @@ public class MainActivity extends AppCompatActivity {
         setUpHeader(mUser,mNavigationView);
 
         mNavigationView.getMenu().getItem(0).setChecked(true);
+        PatientFragment patientFragment = new PatientFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container,patientFragment).commit();
+
+
         mNavigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -101,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case R.id.nav_bluetooth:
                                 BtFragment btFragment = new BtFragment();
+
                                 ft.replace(R.id.fragments_container,btFragment);
                                 break;
                         }
@@ -117,10 +145,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setUpHeader(User user,NavigationView navigationView){
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 2: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+
+
+
+    private void setUpHeader(FirebaseUser user,NavigationView navigationView){
         View header = navigationView.getHeaderView(0);
         TextView headerTitle = (TextView) header.findViewById(R.id.header_title);
-        headerTitle.setText(user.getName());
+        headerTitle.setText(user.getDisplayName());
         TextView headerSubtitle = (TextView) header.findViewById(R.id.header_subtitle);
         headerSubtitle.setText(user.getEmail());
     }
@@ -138,9 +193,36 @@ public class MainActivity extends AppCompatActivity {
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.add_patient_option:
+                Intent startAddPatientActivity = new Intent(this,AddPatientActivity.class);
+                startActivityForResult(startAddPatientActivity,ADD_PATIENT_CODE);
 
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+
+                invalidateOptionsMenu();
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+
+                invalidateOptionsMenu();
+
+            } else if (BluetoothLeService.
+                    ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // Show all the supported services and characteristics on the
+                // user interface.
+                //displayGattServices(mBluetoothLeService.getSupportedGattServices());
+            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }
+        }
+    };
+
 
 }

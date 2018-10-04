@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
+import com.avant.joao.avant.entities.Gait;
 import com.avant.joao.avant.entities.PatientEntity;
 import com.avant.joao.avant.repositories.PatientRepo;
 
@@ -21,9 +22,12 @@ public class PatientViewModel extends AndroidViewModel {
         this.mPatientList = mPatientRepo.getPatients();
     }
 
+    public LiveData<List<Gait>> getPatientGaits(int pid){return mPatientRepo.getPatientGaits(pid);}
+
+    public void insertGait(Gait gait){this.mPatientRepo.insertGait(gait);}
     public LiveData<List<PatientEntity>> getAllPatients(){return this.mPatientList;}
 
-    public void insertPatient(PatientEntity patient){this.mPatientRepo.insert(patient);}
+    public void insertPatient(PatientEntity patient){this.mPatientRepo.insertPatient(patient);}
 
 
 

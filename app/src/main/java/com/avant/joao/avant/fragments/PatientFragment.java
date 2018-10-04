@@ -14,10 +14,8 @@ import android.view.ViewGroup;
 import com.avant.joao.avant.R;
 import com.avant.joao.avant.adapters.PatientListAdapter;
 import com.avant.joao.avant.entities.PatientEntity;
-import com.avant.joao.avant.tools.Patient;
 import com.avant.joao.avant.viewModels.PatientViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PatientFragment extends Fragment {
@@ -25,6 +23,8 @@ public class PatientFragment extends Fragment {
     RecyclerView mRecyclerView;
     PatientListAdapter mPatientListAdapter;
     List<PatientEntity> patients;
+    PatientViewModel mPatientViewModel;
+
 
     @Override
     public View onCreateView(LayoutInflater li, ViewGroup parent, Bundle savedInstanceState){
@@ -39,10 +39,10 @@ public class PatientFragment extends Fragment {
 
         mPatientListAdapter = new PatientListAdapter(patients,getActivity().getApplicationContext());
         mRecyclerView.setAdapter(mPatientListAdapter);
-        PatientViewModel patientViewModel = ViewModelProviders.of(getActivity()).get(PatientViewModel.class);
+        mPatientViewModel = ViewModelProviders.of(getActivity()).get(PatientViewModel.class);
 
-        patientViewModel.insertPatient(new PatientEntity("João",19));
-        patientViewModel.getAllPatients().observe(this, new Observer<List<PatientEntity>>() {
+
+        mPatientViewModel.getAllPatients().observe(this, new Observer<List<PatientEntity>>() {
             @Override
             public void onChanged(@Nullable List<PatientEntity> patientEntities) {
                 mPatientListAdapter.setPatients(patientEntities);
@@ -54,4 +54,6 @@ public class PatientFragment extends Fragment {
 
         return rootview;
     }
+
+
 }
