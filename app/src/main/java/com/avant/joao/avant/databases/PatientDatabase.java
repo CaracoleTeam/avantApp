@@ -11,7 +11,7 @@ import com.avant.joao.avant.entities.Gait;
 import com.avant.joao.avant.entities.PatientEntity;
 
 
-@Database(entities = {PatientEntity.class,Gait.class},version = 3)
+@Database(entities = {PatientEntity.class,Gait.class},version = 5)
 public abstract class PatientDatabase extends RoomDatabase{
 
     public abstract PatientDao patientDao();

@@ -77,23 +77,19 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer_layout);
 
 
-        PatientViewModel patientViewModel = ViewModelProviders.of(this).get(PatientViewModel.class);
 
-
-        patientViewModel.getAllPatients().observe(this, new Observer<List<PatientEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<PatientEntity> patientEntities) {
-
-            }
-        });
 
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                &&
+                ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     2
             );
         }else{

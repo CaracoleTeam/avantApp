@@ -16,7 +16,7 @@
     <string name="title_activity_gaits">Caminhadas</string>
 
     <string name="gait_date_card_label">Realizada em:</string>
-    <string name="gait_cadence_card_label">Cadencia:</string>
+    <string name="gait_cadence_card_label">Cadência:</string>
     <string name="gait_steps_card_label">Passos:</string>
     <string name="gait_time_card_label">Tempo:</string>
 
@@ -24,5 +24,11 @@
 
 
     <string name="start_gait_button_false">Começar</string>
-    <string name="start_gait_button_true">Começar</string>
+    <string name="start_gait_button_true">Parar</string>
+    <string name="cadence_graph_label">Cadência</string>
+
+    <string name="graph_activity_title">Evolução</string>
+    <string name="saving_label">Salvando</string>
+
+    <string name="data_saved">Os dados foram salvos</string>
 </resources>

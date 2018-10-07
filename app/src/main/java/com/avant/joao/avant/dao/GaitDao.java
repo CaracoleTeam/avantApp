@@ -9,13 +9,14 @@ import android.arch.persistence.room.Query;
 
 import com.avant.joao.avant.entities.Gait;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Dao
 public interface GaitDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insertGait(Gait gait);
+    long insertGait(Gait gait);
 
     @Query("SELECT * FROM gait WHERE patientId =:pid")
     LiveData<List<Gait>> getPatientGaits(final int pid);

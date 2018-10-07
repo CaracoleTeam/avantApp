@@ -13,6 +13,7 @@ import com.avant.joao.avant.GaitsActivity;
 import com.avant.joao.avant.R;
 import com.avant.joao.avant.entities.Gait;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GaitAdapter extends RecyclerView.Adapter<GaitAdapter.GaitViewHolder> {
@@ -34,6 +35,8 @@ public class GaitAdapter extends RecyclerView.Adapter<GaitAdapter.GaitViewHolder
         }
     }
 
+    public List<Gait> getGaits(){return this.mGaits;}
+
     @Override
     public GaitViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.gait_item,parent,false);
@@ -48,9 +51,10 @@ public class GaitAdapter extends RecyclerView.Adapter<GaitAdapter.GaitViewHolder
 
             holder.date.setText(gait.getGaitDay()+"/"+gait.getGaitMonth()+"/"+gait.getGaitYear());
 
-            holder.cadence.setText(gait.getCadence()+"p/s");
-            holder.time.setText(gait.getTime()+"s");
-            holder.steps.setText(gait.getTotalSteps() + "passos");
+            holder.cadence.setText(String.valueOf(gait.getCadence())+" p/m");
+            holder.time.setText(String.valueOf(gait.getTime())+"s");
+
+            holder.steps.setText(String.valueOf(gait.getTotalSteps()));
 
         }
     }

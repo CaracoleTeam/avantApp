@@ -136,7 +136,7 @@ public class BluetoothLeService extends Service {
 
         Log.d("value",String.valueOf(num));
         final Intent intent = new Intent(action);
-        intent.putExtra(EXTRA_DATA,result);
+        intent.putExtra(EXTRA_DATA,num);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
     }

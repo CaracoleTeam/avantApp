@@ -20,10 +20,13 @@ import android.widget.TextView;
 import com.avant.joao.avant.entities.Gait;
 import com.avant.joao.avant.fragments.BtFragment;
 import com.avant.joao.avant.services.BluetoothLeService;
+import com.avant.joao.avant.utils.ParcelablePatient;
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class GaitActivity extends AppCompatActivity implements View.OnClickListener {
@@ -32,21 +35,23 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     TextView mGaitCounterText;
     Button mStartRunningButton;
     private boolean isRunning = false;
-    Gait gait;
-    ArrayList<Float> mStepsTime;
+    Gait mGait;
+    ArrayList<Integer> mStepsTime;
     int mSteps;
     BluetoothGatt gatt;
+    private ParcelablePatient mParcelablePatiente;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gait);
 
+        mParcelablePatiente = (ParcelablePatient) getIntent().getSerializableExtra("patient");
         mGaitCounterText = (TextView) findViewById(R.id.steps_counter);
-
         mStartRunningButton = (Button) findViewById(R.id.start_running_button);
-        gait = new Gait();
 
-
+        mStartRunningButton.setOnClickListener(this);
+        mStepsTime = new ArrayList<Integer>();
 
 
     }
@@ -54,15 +59,13 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter dataReceivedFilter = new IntentFilter(BluetoothLeService.ACTION_DATA_AVAILABLE);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver,dataReceivedFilter);
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver);
+
     }
 
 
@@ -86,10 +89,14 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
                 // user interface.
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                Bundle data = intent.getExtras();
-                float stepTime = data.getFloat(BluetoothLeService.EXTRA_DATA);
+
+                int stepTime = intent.getIntExtra(BluetoothLeService.EXTRA_DATA,0);
+                Log.d("Tempo da passada:",String.valueOf(stepTime));
                 mStepsTime.add(stepTime);
                 mSteps = mStepsTime.size();
+
+                mGaitCounterText.setText(String.valueOf(mSteps));
+
 
             }
         }
@@ -100,17 +107,37 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
             case R.id.start_running_button:
                 if(!isRunning){
-                    mStepsTime.clear();
+
                     mStartRunningButton.setText(R.string.start_gait_button_true);
                     IntentFilter dataReceivedFilter = new IntentFilter(BluetoothLeService.ACTION_DATA_AVAILABLE);
                     LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver,dataReceivedFilter);
                     isRunning = true;
                 }else{
                     mStartRunningButton.setText(R.string.start_gait_button_false);
-
+                    processData();
                     LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver);
                     isRunning = false;
                 }
         }
+    }
+
+    public void processData(){
+        float time = 0;
+        for(float a: mStepsTime){
+            Log.d("Tempo da passada:",String.valueOf(a));
+            time +=time + (a/10);
+        }
+
+        Log.d("Tempo total:",String.valueOf(time));
+
+        float cadencia =  mSteps/(time/60);
+        Date c = Calendar.getInstance().getTime();
+
+        mGait = new Gait(time,0,mSteps,mSteps,cadencia,mParcelablePatiente.getPid(),c.getDay(),c.getMonth(),c.getYear());
+
+        Intent it = new Intent();
+        it.putExtra("gait",mGait);
+        setResult(RESULT_OK,it);
+        finish();
     }
 }

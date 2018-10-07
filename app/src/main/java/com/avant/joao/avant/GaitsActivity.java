@@ -10,23 +10,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.avant.joao.avant.adapters.GaitAdapter;
 import com.avant.joao.avant.entities.Gait;
 import com.avant.joao.avant.utils.ParcelablePatient;
+import com.avant.joao.avant.viewModels.GaitViewModel;
 import com.avant.joao.avant.viewModels.PatientViewModel;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GaitsActivity extends AppCompatActivity {
 
-    PatientViewModel mPatientGaitsViewModel;
+    GaitViewModel mPatientGaitsViewModel;
     RecyclerView mGaitRecyclerView;
     GaitAdapter mGaitAdapter;
     List<Gait> mGaits;
 
     public static final int GAIT_CODE = 8500;
+    public static final String GAITS_EXTRA = "gaits";
+    public static final String PATIENT_EXTRA = "patient";
+
 
     private ParcelablePatient mParcelablePatiente;
 
@@ -50,7 +58,7 @@ public class GaitsActivity extends AppCompatActivity {
         mGaitAdapter = new GaitAdapter(this,mGaits);
         mGaitRecyclerView.setAdapter(mGaitAdapter);
 
-        mPatientGaitsViewModel = ViewModelProviders.of(this).get(PatientViewModel.class);
+        mPatientGaitsViewModel = ViewModelProviders.of(this).get(GaitViewModel.class);
         mPatientGaitsViewModel.getPatientGaits(mParcelablePatiente.getPid()).observe(this, new Observer<List<Gait>>() {
             @Override
             public void onChanged(@Nullable List<Gait> gaits) {
@@ -64,16 +72,40 @@ public class GaitsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent startGaitActivity = new Intent(getApplicationContext(),GaitActivity.class);
+                startGaitActivity.putExtra("patient",mParcelablePatiente);
                 startActivityForResult(startGaitActivity,GAIT_CODE);
             }
         });
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && requestCode == GAIT_CODE){
 
+            Gait receivedGait = (Gait) data.getParcelableExtra("gait");
+
+            //mPatientGaitsViewModel.insertGait(receivedGait);
+            mPatientGaitsViewModel.insertGait(new Gait(10,1,3,4,Float.valueOf("4.5"),1,5,10,10));
+
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.graph_item:
+                Intent startGrapthActivity = new Intent(this,GraphActivity.class);
+                startGrapthActivity.putExtra(GAITS_EXTRA,(Serializable) mGaitAdapter.getGaits());
+                startGrapthActivity.putExtra(PATIENT_EXTRA,mParcelablePatiente);
+                startActivity(startGrapthActivity);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.gaits_menu,menu);
+        return true;
     }
 }

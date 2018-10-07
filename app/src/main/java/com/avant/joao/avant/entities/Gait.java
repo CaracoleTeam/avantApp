@@ -4,22 +4,27 @@ package com.avant.joao.avant.entities;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity(tableName = "gait",foreignKeys = @ForeignKey(entity = PatientEntity.class,parentColumns = "pid",childColumns = "patientId"))
 
 
-public class Gait {
+public class Gait implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     public int gid;
-
-    public int time;
+    @Nullable
+    public float time;
     public int lSteps;
     public int rSteps;
     public int totalSteps;
-    public int cadence;
+    @Nullable
+    public float cadence;
 
     public int patientId;
 
@@ -76,7 +81,7 @@ public class Gait {
         this.gid = gid;
     }
 
-    public int getTime() {
+    public float getTime() {
         return time;
     }
 
@@ -100,7 +105,7 @@ public class Gait {
         this.rSteps = rSteps;
     }
 
-    public int getCadence() {
+    public float getCadence() {
         return cadence;
     }
 
@@ -108,7 +113,7 @@ public class Gait {
         this.cadence = cadence;
     }
 
-    public Gait( int time, int lSteps, int rSteps, int totalSteps,int cadence, int patientId, int gaitDay, int gaitMonth, int gaitYear) {
+    public Gait( float time, int lSteps, int rSteps, int totalSteps,float cadence, int patientId, int gaitDay, int gaitMonth, int gaitYear) {
 
         this.time = time;
         this.lSteps = lSteps;
@@ -121,7 +126,6 @@ public class Gait {
         this.gaitYear = gaitYear;
     }
 
-    public Gait(){
 
-    }
+
 }

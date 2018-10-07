@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,26 @@ public class PatientRepo {
         @Override
         public Void doInBackground(Gait ... gaits) {
 
-            gaitAsyncDao.insertGait(gaits[0]);
+            long gaitId = gaitAsyncDao.insertGait(gaits[0]);
+
+            Map<String, Object> gait = new HashMap<>();
+            gait.put("cadence", gaits[0].getCadence());
+            gait.put("totalSteps",gaits[0].getTotalSteps());
+            gait.put("lSteps",gaits[0].getlSteps());
+            gait.put("rSteps",gaits[0].getrSteps());
+            gait.put("gaitDay",gaits[0].getGaitDay());
+            gait.put("gaitMonth",gaits[0].getGaitMonth());
+            gait.put("gaitYear",gaits[0].getGaitYear());
+            gait.put("time",gaits[0].getTime());
+
+
+            PatientRepo.firebaseDb.collection("users")
+                    .document(mFirebaseUser.getUid())
+                    .collection("patients")
+                    .document(String.valueOf(gaits[0].getPatientId())).collection("gaits")
+                    .document(String.valueOf(gaitId)).set(gait);
+
+
             return null;
         }
     }
