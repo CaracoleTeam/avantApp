@@ -1,5 +1,6 @@
 package com.avant.joao.avant;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
@@ -16,11 +17,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avant.joao.avant.entities.Gait;
 import com.avant.joao.avant.fragments.BtFragment;
 import com.avant.joao.avant.services.BluetoothLeService;
 import com.avant.joao.avant.utils.ParcelablePatient;
+import com.avant.joao.avant.utils.Step;
+import com.avant.joao.avant.viewModels.GaitCollectViewModel;
 
 import org.w3c.dom.Text;
 
@@ -34,16 +38,33 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
     TextView mGaitCounterText;
     Button mStartRunningButton;
+    static final String IS_RUNNING_STATE = "running";
     private boolean isRunning = false;
     Gait mGait;
-    ArrayList<Integer> mStepsTime;
+    ArrayList<Float> mStepsTime;
     int mSteps;
     BluetoothGatt gatt;
     private ParcelablePatient mParcelablePatiente;
+    GaitCollectViewModel gaitViewModel;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(IS_RUNNING_STATE,isRunning);
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        isRunning = savedInstanceState.getBoolean(IS_RUNNING_STATE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_gait);
 
         mParcelablePatiente = (ParcelablePatient) getIntent().getSerializableExtra("patient");
@@ -51,7 +72,10 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
         mStartRunningButton = (Button) findViewById(R.id.start_running_button);
 
         mStartRunningButton.setOnClickListener(this);
-        mStepsTime = new ArrayList<Integer>();
+
+        gaitViewModel = ViewModelProviders.of(this).get(GaitCollectViewModel.class);
+
+        mStepsTime = new ArrayList<Float>();
 
 
     }
@@ -59,6 +83,11 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+        if(isRunning){
+            mStartRunningButton.setText(R.string.start_gait_button_true);
+        }else{
+            mStartRunningButton.setText(R.string.start_gait_button_false);
+        }
 
     }
 
@@ -77,8 +106,10 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 //updateConnectionState(R.string.connected);
+                Toast.makeText(getApplicationContext(),"Conectado",Toast.LENGTH_LONG);
 
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                Toast.makeText(getApplicationContext(),"Desconectado",Toast.LENGTH_LONG);
                 mConnected = false;
                 //updateConnectionState(R.string.disconnected);
 
@@ -90,9 +121,31 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
 
-                int stepTime = intent.getIntExtra(BluetoothLeService.EXTRA_DATA,0);
-                Log.d("Tempo da passada:",String.valueOf(stepTime));
-                mStepsTime.add(stepTime);
+                Step passo =new Step();
+
+                String rawData = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+
+                Log.d("Valor vindo do service:",rawData);
+
+                passo.setFoot(rawData.charAt(1));
+
+                int start = 3;
+                int end = 4;
+
+                for(int i = 0;i<rawData.length();i++){
+                    if(rawData.charAt(i) == 'l' ) {
+                        end = i ;
+                    }
+                }
+                String rawTime = rawData.substring(start,end);
+                Log.d("rawTime:",rawTime);
+
+                String rawLenght = rawData.substring(end+1);
+                Log.d("rawLenght:",rawLenght);
+
+                passo.setTime(Integer.valueOf(rawTime));
+                passo.setLenght(Integer.valueOf(rawLenght));
+
                 mSteps = mStepsTime.size();
 
                 mGaitCounterText.setText(String.valueOf(mSteps));
@@ -125,7 +178,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
         float time = 0;
         for(float a: mStepsTime){
             Log.d("Tempo da passada:",String.valueOf(a));
-            time +=time + (a/10);
+            time += a;
         }
 
         Log.d("Tempo total:",String.valueOf(time));

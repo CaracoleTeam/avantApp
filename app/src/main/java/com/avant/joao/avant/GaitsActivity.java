@@ -82,10 +82,10 @@ public class GaitsActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && requestCode == GAIT_CODE){
 
-            Gait receivedGait = (Gait) data.getParcelableExtra("gait");
+            Gait receivedGait = (Gait) data.getSerializableExtra("gait");
 
-            //mPatientGaitsViewModel.insertGait(receivedGait);
-            mPatientGaitsViewModel.insertGait(new Gait(10,1,3,4,Float.valueOf("4.5"),1,5,10,10));
+            mPatientGaitsViewModel.insertGait(receivedGait);
+            //mPatientGaitsViewModel.insertGait(new Gait(10,1,3,4,Float.valueOf("4.5"),1,5,10,10));
 
         }
     }

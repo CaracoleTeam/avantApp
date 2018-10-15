@@ -63,6 +63,8 @@ public class BluetoothLeService extends Service {
                         intentAction = ACTION_GATT_CONNECTED;
                         mConnectionState = STATE_CONNECTED;
                         broadcastUpdate(intentAction);
+
+
                         Log.i(TAG, "Connected to GATT server.");
                         Log.i(TAG, "Attempting to start service discovery:" +
                                 mBluetoothGatt.discoverServices());
@@ -70,6 +72,7 @@ public class BluetoothLeService extends Service {
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                         intentAction = ACTION_GATT_DISCONNECTED;
                         mConnectionState = STATE_DISCONNECTED;
+
                         Log.i(TAG, "Disconnected from GATT server.");
                         broadcastUpdate(intentAction);
                     }
@@ -80,7 +83,11 @@ public class BluetoothLeService extends Service {
                 public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                     List<BluetoothGattService> services = gatt.getServices();
                     List<BluetoothGattCharacteristic> charas = services.get(2).getCharacteristics();
+                    Log.d("SERVICO:",services.get(2).getUuid().toString());
+
                     gatt.readCharacteristic(charas.get(0));
+
+
 
                     broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
 
@@ -95,8 +102,6 @@ public class BluetoothLeService extends Service {
                 public void onCharacteristicChanged(BluetoothGatt gatt,
 
                                                     BluetoothGattCharacteristic characteristic) {
-
-
 
                     broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
 
@@ -125,18 +130,15 @@ public class BluetoothLeService extends Service {
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         Log.d("action",action);
-        String result ="" ;
 
 
-        ByteBuffer wrapped = ByteBuffer.wrap(characteristic.getValue());
-        int num = wrapped.get();
+        String rawValue = characteristic.getStringValue(0);
 
-        //Divide por dez por que o bluetooth vai receber um valor bruto;
-        float receivedTimeOfSteps = num/10;
+        Log.d("rawValue:",rawValue);
+        
 
-        Log.d("value",String.valueOf(num));
         final Intent intent = new Intent(action);
-        intent.putExtra(EXTRA_DATA,num);
+        intent.putExtra(EXTRA_DATA,rawValue);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
     }

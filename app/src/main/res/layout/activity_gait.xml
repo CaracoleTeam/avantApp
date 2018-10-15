@@ -54,6 +54,6 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_margin="8dp"
-            android:text="@string/start_gait_button_false" />
+            android:text="" />
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
