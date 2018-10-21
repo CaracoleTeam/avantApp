@@ -1,5 +1,6 @@
 package com.avant.joao.avant;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -7,6 +8,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
+import com.avant.joao.avant.databases.PatientDatabase;
+import com.avant.joao.avant.entities.PatientEntity;
+import com.avant.joao.avant.repositories.PatientRepo;
+import com.avant.joao.avant.viewModels.PatientViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -15,12 +20,19 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.Map;
 
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -106,6 +118,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("SignIn", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            //updateData(user);
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -118,6 +131,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
     }
+
+    //TODO sincronizar os dados do banco ao fazer login pela primeira vez
+    /*private void updateData(FirebaseUser user){
+        Log.d("entrou em updateData","true");
+        final PatientViewModel viewModel = ViewModelProviders.of(this).get(PatientViewModel.class);
+
+
+        Log.d("UPDATE DATA","Atualiazando com firebase");
+        viewModel.updatePatients(user);
+    }*/
 
     private void updateUI(FirebaseUser account){
 

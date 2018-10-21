@@ -20,4 +20,7 @@ public interface GaitDao {
 
     @Query("SELECT * FROM gait WHERE patientId =:pid")
     LiveData<List<Gait>> getPatientGaits(final int pid);
+
+    @Query("DELETE FROM gait WHERE patientId=:pid")
+    void removeGaitsFromPatient(final int pid);
 }

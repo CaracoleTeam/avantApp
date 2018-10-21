@@ -1,5 +1,6 @@
 package com.avant.joao.avant.adapters;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +17,9 @@ import android.widget.TextView;
 import com.avant.joao.avant.GaitsActivity;
 import com.avant.joao.avant.R;
 import com.avant.joao.avant.entities.PatientEntity;
+import com.avant.joao.avant.interfaces.OnDeletePatientItemClick;
 import com.avant.joao.avant.utils.ParcelablePatient;
+import com.avant.joao.avant.viewModels.PatientViewModel;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -26,11 +29,12 @@ public class PatientListAdapter extends RecyclerView.Adapter<PatientListAdapter.
     private List<PatientEntity> mPatientsList;
 
     private Context context;
+    private OnDeletePatientItemClick mDeleteListener;
 
-
-    public PatientListAdapter(List<PatientEntity> mPatientsList, Context context) {
+    public PatientListAdapter(List<PatientEntity> mPatientsList, Context context, OnDeletePatientItemClick deleteListener) {
         this.mPatientsList = mPatientsList;
         this.context = context;
+        this.mDeleteListener = deleteListener;
     }
 
     public void setPatients(List<PatientEntity> patients){
@@ -50,8 +54,13 @@ public class PatientListAdapter extends RecyclerView.Adapter<PatientListAdapter.
         if(mPatientsList != null){
             holder.mPatientName.setText(mPatientsList.get(position).getName());
             holder.mPatientAge.setText(String.valueOf(mPatientsList.get(position).getAge())+" anos");
+            byte [] image = mPatientsList.get(position).getProfile();
+            if(image == null){
+                Log.i("Image de perfil nula:","true");
+            }else{
+                holder.mProfile.setImageBitmap(BitmapFactory.decodeStream(new ByteArrayInputStream(image)));
+            }
 
-            holder.mProfile.setImageBitmap(BitmapFactory.decodeStream(new ByteArrayInputStream(mPatientsList.get(position).getProfile())));
 
             holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -61,6 +70,13 @@ public class PatientListAdapter extends RecyclerView.Adapter<PatientListAdapter.
                     Intent startGaitActivityIntent = new Intent(context,GaitsActivity.class);
                     startGaitActivityIntent.putExtra("patient",new ParcelablePatient(patient.getPid(),patient.getName()));
                     view.getContext().startActivity(startGaitActivityIntent);
+                }
+            });
+
+            holder.mDeletePatientIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mDeleteListener.OnDeletePatientItemClick(mPatientsList.get(position));
                 }
             });
         }
@@ -82,6 +98,7 @@ public class PatientListAdapter extends RecyclerView.Adapter<PatientListAdapter.
         private final ImageView mProfile;
 
         private final LinearLayout mLinearLayout;
+        private ImageView mDeletePatientIcon;
 
         public PatientListViewHolder(View itemView) {
             super(itemView);
@@ -90,6 +107,7 @@ public class PatientListAdapter extends RecyclerView.Adapter<PatientListAdapter.
             mPatientAge = itemView.findViewById(R.id.patient_age);
             mProfile = itemView.findViewById(R.id.profile_image_item);
             mLinearLayout = itemView.findViewById(R.id.patient_item_layout);
+            mDeletePatientIcon = itemView.findViewById(R.id.remove_patient_icon);
         }
     }
 }

@@ -61,6 +61,11 @@ public class PatientEntity  {
         this.profile = profile;
     }
 
+    public PatientEntity(){
+
+    }
+
+
 
 
 

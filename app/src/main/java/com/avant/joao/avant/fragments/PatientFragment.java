@@ -14,11 +14,12 @@ import android.view.ViewGroup;
 import com.avant.joao.avant.R;
 import com.avant.joao.avant.adapters.PatientListAdapter;
 import com.avant.joao.avant.entities.PatientEntity;
+import com.avant.joao.avant.interfaces.OnDeletePatientItemClick;
 import com.avant.joao.avant.viewModels.PatientViewModel;
 
 import java.util.List;
 
-public class PatientFragment extends Fragment {
+public class PatientFragment extends Fragment implements OnDeletePatientItemClick {
 
     RecyclerView mRecyclerView;
     PatientListAdapter mPatientListAdapter;
@@ -37,7 +38,7 @@ public class PatientFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(),2));
 
 
-        mPatientListAdapter = new PatientListAdapter(patients,getActivity().getApplicationContext());
+        mPatientListAdapter = new PatientListAdapter(patients,getActivity().getApplicationContext(),this);
         mRecyclerView.setAdapter(mPatientListAdapter);
         mPatientViewModel = ViewModelProviders.of(getActivity()).get(PatientViewModel.class);
 
@@ -53,6 +54,12 @@ public class PatientFragment extends Fragment {
 
 
         return rootview;
+    }
+
+    @Override
+    public void OnDeletePatientItemClick(PatientEntity patient){
+        PatientViewModel patientViewModel = ViewModelProviders.of(this).get(PatientViewModel.class);
+        patientViewModel.removePatient(patient);
     }
 
 

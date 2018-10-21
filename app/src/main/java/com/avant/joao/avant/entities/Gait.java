@@ -33,6 +33,10 @@ public class Gait implements Serializable {
     public int gaitYear;
 
 
+    public Gait(){
+
+    }
+
     public int getTotalSteps() {
         return totalSteps;
     }
@@ -121,6 +125,19 @@ public class Gait implements Serializable {
         this.totalSteps = totalSteps;
         this.cadence = cadence;
         this.patientId = patientId;
+        this.gaitDay = gaitDay;
+        this.gaitMonth = gaitMonth;
+        this.gaitYear = gaitYear;
+    }
+
+    public Gait( float time, int lSteps, int rSteps, int totalSteps,float cadence, int gaitDay, int gaitMonth, int gaitYear) {
+
+        this.time = time;
+        this.lSteps = lSteps;
+        this.rSteps = rSteps;
+        this.totalSteps = totalSteps;
+        this.cadence = cadence;
+
         this.gaitDay = gaitDay;
         this.gaitMonth = gaitMonth;
         this.gaitYear = gaitYear;

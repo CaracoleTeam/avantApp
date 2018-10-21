@@ -1,11 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
+    android:id="@+id/step_container"
+    android:padding="5dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="20dp"
+    android:orientation="horizontal"
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="60dp">
+    android:layout_height="70dp">
+
+
+    <ImageView
+        android:id="@+id/left_step_ball"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.3"
+        android:src="@drawable/circle"/>
+    <RelativeLayout
+        android:padding="3dp"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <TextView
+            android:text="@string/step_lenght_label"
+            android:id="@+id/comprimento_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="89.2 cm"
+            android:id="@+id/step_lenght"
+            android:layout_alignRight="@+id/comprimento_label"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="@string/step_time_label"
+            android:id="@+id/tempo_label"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="82.2 cm"
+            android:id="@+id/step_time"
+            android:layout_alignRight="@+id/tempo_label"
+            android:layout_alignParentBottom="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/right_step_ball"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.3"
+        android:src="@drawable/circle"/>
 
 
 
 
-
-
-</RelativeLayout>
+</LinearLayout>

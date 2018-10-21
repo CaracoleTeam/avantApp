@@ -83,7 +83,7 @@ public class GaitsActivity extends AppCompatActivity {
         if(resultCode == RESULT_OK && requestCode == GAIT_CODE){
 
             Gait receivedGait = (Gait) data.getSerializableExtra("gait");
-
+            receivedGait.setPatientId(mParcelablePatiente.getPid());
             mPatientGaitsViewModel.insertGait(receivedGait);
             //mPatientGaitsViewModel.insertGait(new Gait(10,1,3,4,Float.valueOf("4.5"),1,5,10,10));
 

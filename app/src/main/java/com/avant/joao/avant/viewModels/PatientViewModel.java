@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import com.avant.joao.avant.entities.Gait;
 import com.avant.joao.avant.entities.PatientEntity;
 import com.avant.joao.avant.repositories.PatientRepo;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
@@ -27,7 +28,9 @@ public class PatientViewModel extends AndroidViewModel {
 
     public void insertPatient(PatientEntity patient){this.mPatientRepo.insertPatient(patient);}
 
+    public void removePatient(PatientEntity patient){this.mPatientRepo.removePatient(patient);}
 
+    public void updatePatients(FirebaseUser user){this.mPatientRepo.updatePatients(user);}
 
 
 }
