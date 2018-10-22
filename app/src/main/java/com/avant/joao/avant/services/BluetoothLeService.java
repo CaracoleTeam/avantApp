@@ -19,6 +19,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.avant.joao.avant.broadcastReceivers.BLEConnectionBroadcastReceiver;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -31,24 +33,27 @@ public class BluetoothLeService extends Service {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
+    private String mBluetoothDeviceName;
     private BluetoothGatt mBluetoothGatt;
 
     public  int mConnectionState = STATE_DISCONNECTED;
 
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
+    public static final int STATE_DISCONNECTED = 0;
+    public static final int STATE_CONNECTING = 1;
+    public static final int STATE_CONNECTED = 2;
 
-    public final static String ACTION_GATT_CONNECTED =
-            "com.avant.joao.avant.bluetooth.le.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED =
-            "com.avant.joao.avant.bluetooth.le.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_CONNECTION_CHANGE =
+            "com.avant.joao.avant.bluetooth.le.ACTION_GATT_CONNECTION_CHANGE";
+
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
             "com.avant.joao.avant.  bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
             "com.avant.joao.avant.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.avant.joao.avant.bluetooth.le.EXTRA_DATA";
+
+    public final static String DEVICE_ADDR_EXTRA = "DEVICE_ADDR_EXTRA";
+    public final static String DEVICE_NAME_EXTRA = "DEVICE_NAME_EXTRA";
 
 
 
@@ -58,11 +63,11 @@ public class BluetoothLeService extends Service {
                 @Override
                 public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                                     int newState) {
-                    String intentAction;
+                    String intentAction = ACTION_GATT_CONNECTION_CHANGE;
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        intentAction = ACTION_GATT_CONNECTED;
+
                         mConnectionState = STATE_CONNECTED;
-                        broadcastUpdate(intentAction);
+
 
 
                         Log.i(TAG, "Connected to GATT server.");
@@ -70,12 +75,13 @@ public class BluetoothLeService extends Service {
                                 mBluetoothGatt.discoverServices());
 
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                        intentAction = ACTION_GATT_DISCONNECTED;
+
                         mConnectionState = STATE_DISCONNECTED;
 
                         Log.i(TAG, "Disconnected from GATT server.");
-                        broadcastUpdate(intentAction);
+
                     }
+                    broadcastUpdate(intentAction);
                 }
 
                 @Override
@@ -123,8 +129,14 @@ public class BluetoothLeService extends Service {
             };
 
     private void broadcastUpdate(final String action) {
-        final Intent intent = new Intent(action);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        final Intent intent = new Intent(this,BLEConnectionBroadcastReceiver.class);
+        Log.d("Ação",action);
+        Log.d("broadcastUpdate","Mudando estado da conexao");
+        intent.putExtra("state",mConnectionState);
+        if(mConnectionState == BluetoothLeService.STATE_CONNECTED){
+            intent.putExtra("deviceName",this.mBluetoothDeviceName);
+        }
+        sendBroadcast(intent);
     }
 
     private void broadcastUpdate(final String action,
@@ -135,7 +147,7 @@ public class BluetoothLeService extends Service {
         String rawValue = characteristic.getStringValue(0);
 
         Log.d("rawValue:",rawValue);
-        
+
 
         final Intent intent = new Intent(action);
         intent.putExtra(EXTRA_DATA,rawValue);
@@ -146,7 +158,10 @@ public class BluetoothLeService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        String deviceAddr = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+        String deviceAddr = intent.getStringExtra(BluetoothLeService.DEVICE_ADDR_EXTRA);
+        String bluetoothName = intent.getStringExtra(BluetoothLeService.DEVICE_NAME_EXTRA);
+        this.mBluetoothDeviceAddress = deviceAddr;
+        this.mBluetoothDeviceName = bluetoothName;
 
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);

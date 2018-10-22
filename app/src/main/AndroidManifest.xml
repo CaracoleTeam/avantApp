@@ -52,6 +52,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".broadcastReceivers.BLEConnectionBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.avant.joao.avant.bluetooth.le.ACTION_GATT_CONNECTION_CHANGE"></action>
+            </intent-filter>
+        </receiver>
+
+
+
         <activity android:name=".GraphActivity"
             android:theme="@style/AppTheme.TransparentActionbarStyle"></activity>
     </application>

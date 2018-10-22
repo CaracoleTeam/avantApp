@@ -13,18 +13,14 @@ import java.util.List;
 
 public class GaitCollectViewModel extends ViewModel {
 
-    private MutableLiveData<List<Step>> mSteps;
+    private MutableLiveData<List<Step>> mSteps =  new MutableLiveData<List<Step>>();
 
 
     public LiveData<List<Step>> getSteps(){
         return this.mSteps;
     }
 
-    public void addStep(Step step){
-        List<Step> currentSteps = this.mSteps.getValue();
-        currentSteps.add(step);
-        this.mSteps.postValue(currentSteps);
-    }
+
 
 
 }
