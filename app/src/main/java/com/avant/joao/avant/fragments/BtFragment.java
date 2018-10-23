@@ -149,11 +149,12 @@ public class BtFragment extends Fragment implements OnBluetoothItemClick {
 
 
     @Override
-    public void OnBluetoothItemClick(String deviceAddr) {
+    public void OnBluetoothItemClick(String deviceAddr,String deviceName) {
         Log.d("Addr:",deviceAddr);
 
         Intent startBluetoothservice = new Intent(getActivity().getApplicationContext(),BluetoothLeService.class);
         startBluetoothservice.putExtra(BluetoothLeService.DEVICE_ADDR_EXTRA,deviceAddr);
+        startBluetoothservice.putExtra(BluetoothLeService.DEVICE_NAME_EXTRA,deviceName);
         getActivity().startService(startBluetoothservice);
 
 

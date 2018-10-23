@@ -163,6 +163,7 @@ public class BluetoothLeService extends Service {
         this.mBluetoothDeviceAddress = deviceAddr;
         this.mBluetoothDeviceName = bluetoothName;
 
+        Log.d("Dispositivo bluetooth:",this.mBluetoothDeviceName);
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();

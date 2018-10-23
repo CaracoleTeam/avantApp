@@ -27,10 +27,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.avant.joao.avant.Observables.BluetoothStateObservable;
 import com.avant.joao.avant.entities.PatientEntity;
 import com.avant.joao.avant.fragments.BtFragment;
 import com.avant.joao.avant.fragments.PatientFragment;
 import com.avant.joao.avant.services.BluetoothLeService;
+import com.avant.joao.avant.utils.BluetoothStatus;
 import com.avant.joao.avant.viewModels.PatientViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,8 +41,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+
 
 public class MainActivity extends AppCompatActivity {
+
 
 
     private DrawerLayout mDrawerLayout;
@@ -57,6 +62,27 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
 
+        BluetoothStatus status =  new BluetoothStatus();
+
+        status.deviceName = BluetoothStateObservable.getBluetoothName();
+        status.connectionStatus =  BluetoothStateObservable.getBluetothState();
+
+        BluetoothStateObservable.getInstance().updateStatus(status);
+
+        BluetoothStateObservable.getInstance().addObserver(new java.util.Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                Log.d("Atualizou","True");
+                BluetoothStatus status = (BluetoothStatus) arg;
+                if(status.deviceName != null){
+                    getSupportActionBar().setSubtitle("Conectado:"+status.deviceName);
+
+                }else{
+                    getSupportActionBar().setSubtitle("Desconectado");
+
+                }
+            }
+        });
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -195,9 +221,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
 
 
 

@@ -84,7 +84,7 @@ public class BluetoothListAdapter extends RecyclerView.Adapter<BluetoothListAdap
         holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.OnBluetoothItemClick(device.getAddress());
+                mListener.OnBluetoothItemClick(device.getAddress(),device.getName());
                 //mBluetoothGatt = device.connectGatt(mContext, true, mGattCallback);
             }
         });
