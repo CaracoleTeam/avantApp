@@ -23,7 +23,6 @@ public class PatientViewModel extends AndroidViewModel {
         this.mPatientList = mPatientRepo.getPatients();
     }
 
-
     public LiveData<List<PatientEntity>> getAllPatients(){return this.mPatientList;}
 
     public void insertPatient(PatientEntity patient){this.mPatientRepo.insertPatient(patient);}

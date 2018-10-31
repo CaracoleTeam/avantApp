@@ -3,10 +3,10 @@ package com.avant.joao.avant;
 import android.arch.lifecycle.ViewModelProviders;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,9 +15,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.avant.joao.avant.Observables.BluetoothStateObservable;
 import com.avant.joao.avant.adapters.StepsAdapter;
@@ -30,15 +29,15 @@ import com.avant.joao.avant.utils.ParcelablePatient;
 import com.avant.joao.avant.utils.Step;
 import com.avant.joao.avant.viewModels.GaitCollectViewModel;
 
-import org.w3c.dom.Text;
+
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
+
+
 
 public class GaitActivity extends AppCompatActivity implements View.OnClickListener,Observer {
 
@@ -73,8 +72,10 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        BluetoothStateObservable.getInstance().addObserver(this);
 
+
+
+        BluetoothStateObservable.getInstance().addObserver(this);
         BluetoothStatus status =  new BluetoothStatus();
 
         status.deviceName = BluetoothStateObservable.getBluetoothName();
@@ -136,8 +137,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
             final String action = intent.getAction();
             if (BluetoothLeService.
                     ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the
-                // user interface.
+
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
 
@@ -193,7 +193,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
                     //para testes
 
-                    Step passo1 = getStepFromRawData("pEt10l60");
+                    /*Step passo1 = getStepFromRawData("pEt10l60");
                     mStepsAdapter.addStep(passo1);
                     mStepsAdapter.notifyDataSetChanged();
                     Step passo2 = getStepFromRawData("pDt70l57");
@@ -202,11 +202,11 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
                     Step passo3 = getStepFromRawData("pDt21l43");
                     mStepsAdapter.addStep(passo3);
                     mStepsAdapter.notifyDataSetChanged();
-                    mGaitCounterText.setText(String.valueOf(mStepsAdapter.getItemCount()));
+                    mGaitCounterText.setText(String.valueOf(mStepsAdapter.getItemCount()));*/
 
                     //O que deve ser implementado
-                    /*IntentFilter dataReceivedFilter = new IntentFilter(BluetoothLeService.ACTION_DATA_AVAILABLE);
-                    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver,dataReceivedFilter);*/
+                    IntentFilter dataReceivedFilter = new IntentFilter(BluetoothLeService.ACTION_DATA_AVAILABLE);
+                    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver,dataReceivedFilter);
 
                     isRunning = true;
                 }else{
@@ -219,12 +219,17 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void processData(ArrayList<Step> steps){
+        Intent it = new Intent();
+
 
 
         float time = 0,cadence;
         int totalSteps = steps.size() ,rSteps, lSteps = rSteps = 0;
-
-
+        
+        if(totalSteps == 0){
+            setResult(RESULT_CANCELED);
+            finish();
+        }
 
         for(Step step:steps){
            time += step.getTime();
@@ -240,7 +245,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
         Gait caminhada = new Gait(time,lSteps,rSteps,totalSteps,cadence,c.getDay(),c.getMonth(),c.getYear());
 
-        Intent it = new Intent();
+
         it.putExtra("gait",caminhada);
         setResult(RESULT_OK,it);
         finish();
@@ -248,6 +253,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void update(Observable o, Object arg) {
+
         Log.d("Atualizou","True");
         BluetoothStatus status = (BluetoothStatus) arg;
         if(status.deviceName != null){

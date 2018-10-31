@@ -1,17 +1,12 @@
 package com.avant.joao.avant;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -25,28 +20,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.avant.joao.avant.Observables.BluetoothStateObservable;
-import com.avant.joao.avant.entities.PatientEntity;
 import com.avant.joao.avant.fragments.BtFragment;
 import com.avant.joao.avant.fragments.PatientFragment;
-import com.avant.joao.avant.services.BluetoothLeService;
 import com.avant.joao.avant.utils.BluetoothStatus;
-import com.avant.joao.avant.viewModels.PatientViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer{
 
 
+    boolean mConnected = true;
 
     private DrawerLayout mDrawerLayout;
     private ActionBar mActionBar;
@@ -59,9 +51,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+
+
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
 
+
+
+
+
+        BluetoothStateObservable.getInstance().addObserver(this);
         BluetoothStatus status =  new BluetoothStatus();
 
         status.deviceName = BluetoothStateObservable.getBluetoothName();
@@ -69,20 +75,14 @@ public class MainActivity extends AppCompatActivity {
 
         BluetoothStateObservable.getInstance().updateStatus(status);
 
-        BluetoothStateObservable.getInstance().addObserver(new java.util.Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                Log.d("Atualizou","True");
-                BluetoothStatus status = (BluetoothStatus) arg;
-                if(status.deviceName != null){
-                    getSupportActionBar().setSubtitle("Conectado:"+status.deviceName);
 
-                }else{
-                    getSupportActionBar().setSubtitle("Desconectado");
 
-                }
-            }
-        });
+
+
+
+
+
+
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -94,11 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mActionBar = getSupportActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer_layout);
 
@@ -165,6 +161,20 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Log.d("Atualizou","True");
+        BluetoothStatus status = (BluetoothStatus) arg;
+        if(status.deviceName != null){
+            mActionBar.setSubtitle("Conectado:"+status.deviceName);
+            mConnected = true;
+        }else{
+            mActionBar.setSubtitle("Desconectado");
+            mConnected = false;
+
+        }
     }
 
     @Override
