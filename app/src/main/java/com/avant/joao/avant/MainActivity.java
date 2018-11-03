@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -37,6 +38,13 @@ import java.util.Observer;
 
 public class MainActivity extends AppCompatActivity implements Observer{
 
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    public native long startList();
+    public native void addItem(long listReference,double time,double lenght,char foot);
+    public native double[] getList(long listReference);
 
     boolean mConnected = true;
 
@@ -59,13 +67,23 @@ public class MainActivity extends AppCompatActivity implements Observer{
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
 
-
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
 
 
+        long listReference = startList();
 
 
+        addItem(listReference,2.5,0.60,'D');
+        addItem(listReference,2.5,0.60,'D');
+        addItem(listReference,2.5,0.60,'D');
+
+
+        double [] tempos = getList(listReference);
+
+        for(double item : tempos){
+            Log.d("tempo:",String.valueOf(item));
+        }
 
         BluetoothStateObservable.getInstance().addObserver(this);
         BluetoothStatus status =  new BluetoothStatus();
@@ -163,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements Observer{
 
     }
 
+
+
     @Override
     public void update(Observable o, Object arg) {
         Log.d("Atualizou","True");
@@ -182,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements Observer{
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 2: {
-                // If request is cancelled, the result arrays are empty.
+
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -190,14 +210,12 @@ public class MainActivity extends AppCompatActivity implements Observer{
 
                 } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+
                 }
                 return;
             }
 
-            // other 'case' lines to check for other
-            // permissions this app might request
+
         }
     }
 
