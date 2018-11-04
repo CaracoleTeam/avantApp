@@ -34,7 +34,7 @@ void appendList(List * lista, ListItem * data){
 
 
 extern "C" {
-JNIEXPORT jlong JNICALL Java_com_avant_joao_avant_MainActivity_startList(
+JNIEXPORT jlong JNICALL Java_com_avant_joao_avant_GaitActivity_startList(
         JNIEnv *env, jobject obj) {
 
     List  * lista = (List *) malloc(sizeof(List));
@@ -44,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_avant_joao_avant_MainActivity_startList(
     return (long)lista;
 
 }
-
-JNIEXPORT void JNICALL Java_com_avant_joao_avant_MainActivity_addItem(JNIEnv *env, jobject obj,jlong listReference, jdouble time,
+//TODO mudar função para receber um objeto java
+JNIEXPORT void JNICALL Java_com_avant_joao_avant_GaitActivity_addItem(JNIEnv *env, jobject obj,jlong listReference, jdouble time,
                                                jdouble lenght, jchar foot) {
 
     ListItem *generatedList = (ListItem *) malloc(sizeof(ListItem));
@@ -58,12 +58,24 @@ JNIEXPORT void JNICALL Java_com_avant_joao_avant_MainActivity_addItem(JNIEnv *en
 
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_com_avant_joao_avant_MainActivity_getList(JNIEnv *env, jobject obj, jlong listReference){
-
+JNIEXPORT jint JNICALL Java_com_avant_joao_avant_GaitActivity_getStepsCount(JNIEnv *env, jobject obj, jlong listReference){
+    if(listReference == NULL){
+        return 0;
+    }
     List * lista = (List*)listReference;
     int size = lista->total;
+    return size;
 
-    jdoubleArray tempos = (*env).NewDoubleArray(lista->total);
+
+
+}
+
+JNIEXPORT void JNICALL Java_com_avant_joao_avant_GaitActivity_freeList(JNIEnv *env, jobject obj, jlong listReference) {
+    free((List *) listReference);
+}
+/*PEGAR DADOS DA LISTA
+ *
+ * jdoubleArray tempos = (*env).NewDoubleArray(lista->total);
 
     jdouble fill[size];
 
@@ -79,8 +91,8 @@ JNIEXPORT jdoubleArray JNICALL Java_com_avant_joao_avant_MainActivity_getList(JN
     env->SetDoubleArrayRegion( tempos, 0, size, fill);
 
     return tempos;
-
-}
+ *
+ * */
 
 
 }

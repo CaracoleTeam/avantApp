@@ -37,6 +37,9 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         }
     }
 
+    public void setSteps(ArrayList<Step> steps){
+        this.mStepList = steps;
+    }
     public ArrayList<Step> getSteps(){
         return this.mStepList;
     }

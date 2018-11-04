@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.content.IntentFilter;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.avant.joao.avant.viewModels.GaitCollectViewModel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -41,12 +43,29 @@ import java.util.Observer;
 
 public class GaitActivity extends AppCompatActivity implements View.OnClickListener,Observer {
 
+
+    public TextView mGaitCounterText;
+
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    public native long startList();
+    public native void addItem(long listReference,double time,double lenght,char foot);
+    public native int getStepsCount(long listReference);
+    public native void freeList(long listReference);
+
+
+
     boolean mConnected = true;
     
-    TextView mGaitCounterText;
+
+
     Button mStartRunningButton;
     static final String IS_RUNNING_STATE = "running";
     private boolean isRunning = false;
+
+    private static long listReference = 0;
 
     StepsAdapter mStepsAdapter;
 
@@ -72,8 +91,12 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_gait);
 
-
+        mGaitCounterText = findViewById(R.id.steps_counter);
+        if(mGaitCounterText == null){
+            Log.d("eh null","sim");
+        }
 
         BluetoothStateObservable.getInstance().addObserver(this);
         BluetoothStatus status =  new BluetoothStatus();
@@ -83,15 +106,26 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
         BluetoothStateObservable.getInstance().updateStatus(status);
 
+        int steps = getStepsCount(listReference);
+        Log.d("steps",String.valueOf(steps));
+
+
+        gaitViewModel = ViewModelProviders.of(this).get(GaitCollectViewModel.class);
+
+        gaitViewModel.getSteps().observe(this, new android.arch.lifecycle.Observer<ArrayList<Step>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<Step> steps) {
+                mStepsAdapter.setSteps(steps);
+                mStepsAdapter.notifyDataSetChanged();
+                mGaitCounterText.setText(String.valueOf(getStepsCount(listReference)));
+            }
+        });
 
 
 
 
 
 
-
-
-        setContentView(R.layout.activity_gait);
         mSteps = new ArrayList<Step>();
         mStepsRecyclerView = (RecyclerView) findViewById(R.id.steps_recycler_view);
         mStepsRecyclerView.hasFixedSize();
@@ -103,7 +137,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
         mStepsRecyclerView.setAdapter(mStepsAdapter);
 
-        mGaitCounterText = (TextView) findViewById(R.id.steps_counter);
+
         mStartRunningButton = (Button) findViewById(R.id.start_running_button);
 
         mStartRunningButton.setOnClickListener(this);
@@ -149,10 +183,14 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
 
                 Step passo = getStepFromRawData(rawData);
 
-                mStepsAdapter.addStep(passo);
-                mStepsAdapter.notifyDataSetChanged();
+                ArrayList<Step> currentStep = mStepsAdapter.getSteps();
+                currentStep.add(passo);
 
-                mGaitCounterText.setText(String.valueOf(mStepsAdapter.getItemCount()));
+                addItem(listReference,passo.getTime(),passo.getLenght(),passo.getFoot());
+                gaitViewModel.updateSteps(currentStep);
+
+
+
 
 
             }
@@ -186,30 +224,33 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.start_running_button:
-                mGaitCounterText.setText(String.valueOf(mStepsAdapter.getItemCount()));
-                if(!isRunning){
 
+                if(!isRunning){
+                    listReference = startList();
                     mStartRunningButton.setText(R.string.start_gait_button_true);
 
                     //para testes
 
-                    /*Step passo1 = getStepFromRawData("pEt10l60");
-                    mStepsAdapter.addStep(passo1);
-                    mStepsAdapter.notifyDataSetChanged();
-                    Step passo2 = getStepFromRawData("pDt70l57");
-                    mStepsAdapter.addStep(passo2);
-                    mStepsAdapter.notifyDataSetChanged();
-                    Step passo3 = getStepFromRawData("pDt21l43");
-                    mStepsAdapter.addStep(passo3);
-                    mStepsAdapter.notifyDataSetChanged();
-                    mGaitCounterText.setText(String.valueOf(mStepsAdapter.getItemCount()));*/
+                    ArrayList currentSteps = mStepsAdapter.getSteps();
+                    currentSteps.add(getStepFromRawData("pEt10l60"));
+                    addItem(listReference,1.0,60,'E');
+                    currentSteps.add(getStepFromRawData("pDt70l57"));
+                    addItem(listReference,7.0,57,'D');
+                    currentSteps.add(getStepFromRawData("pDt21l43"));
+                    addItem(listReference,2.1,43,'D');
+
+
+                    gaitViewModel.updateSteps(currentSteps);
+
 
                     //O que deve ser implementado
-                    IntentFilter dataReceivedFilter = new IntentFilter(BluetoothLeService.ACTION_DATA_AVAILABLE);
-                    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver,dataReceivedFilter);
+                    /*IntentFilter dataReceivedFilter = new IntentFilter(BluetoothLeService.ACTION_DATA_AVAILABLE);
+                    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver,dataReceivedFilter);*/
+
 
                     isRunning = true;
                 }else{
+                    freeList(listReference);
                     mStartRunningButton.setText(R.string.start_gait_button_false);
                     processData(mStepsAdapter.getSteps());
                     LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver);

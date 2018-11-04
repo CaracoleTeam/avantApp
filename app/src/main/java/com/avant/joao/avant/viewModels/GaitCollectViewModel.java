@@ -9,18 +9,21 @@ import android.support.annotation.NonNull;
 
 import com.avant.joao.avant.utils.Step;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GaitCollectViewModel extends ViewModel {
 
-    private MutableLiveData<List<Step>> mSteps =  new MutableLiveData<List<Step>>();
+    private MutableLiveData<ArrayList<Step>> steps = new MutableLiveData<ArrayList<Step>>();
 
+    public MutableLiveData<ArrayList<Step>> getSteps(){
 
-    public LiveData<List<Step>> getSteps(){
-        return this.mSteps;
+        return this.steps;
     }
 
+    public void updateSteps(ArrayList<Step> currentList ){
 
-
+        this.steps.postValue(currentList);
+    }
 
 }

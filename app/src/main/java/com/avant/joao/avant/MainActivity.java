@@ -38,13 +38,9 @@ import java.util.Observer;
 
 public class MainActivity extends AppCompatActivity implements Observer{
 
-    static {
-        System.loadLibrary("native-lib");
-    }
 
-    public native long startList();
-    public native void addItem(long listReference,double time,double lenght,char foot);
-    public native double[] getList(long listReference);
+
+
 
     boolean mConnected = true;
 
@@ -71,19 +67,9 @@ public class MainActivity extends AppCompatActivity implements Observer{
         FirebaseUser mUser = mAuth.getCurrentUser();
 
 
-        long listReference = startList();
 
 
-        addItem(listReference,2.5,0.60,'D');
-        addItem(listReference,2.5,0.60,'D');
-        addItem(listReference,2.5,0.60,'D');
 
-
-        double [] tempos = getList(listReference);
-
-        for(double item : tempos){
-            Log.d("tempo:",String.valueOf(item));
-        }
 
         BluetoothStateObservable.getInstance().addObserver(this);
         BluetoothStatus status =  new BluetoothStatus();
