@@ -29,7 +29,7 @@ public class PatientViewModel extends AndroidViewModel {
 
     public void removePatient(PatientEntity patient){this.mPatientRepo.removePatient(patient);}
 
-    public void updatePatients(FirebaseUser user){this.mPatientRepo.updatePatients(user);}
+
 
 
 }

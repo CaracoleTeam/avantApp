@@ -65,9 +65,6 @@ public class PatientRepo {
         new removePatientAsyncTask(mPatientDao,mGaitDao).execute(patient);
     }
 
-    public void updatePatients(FirebaseUser user){
-        new updatePatientsAsyncTask(mPatientDao).execute(user);
-    }
 
 
     public void insertGait(Gait gait){
@@ -75,54 +72,7 @@ public class PatientRepo {
     }
 
 
-    private static class updatePatientsAsyncTask extends AsyncTask<FirebaseUser,Integer,Void>{
-        private PatientDao asyncPatientDao;
 
-        updatePatientsAsyncTask(PatientDao pd){
-            this.asyncPatientDao = pd;
-        }
-
-        @Override
-        protected Void doInBackground(final FirebaseUser... firebaseUsers) {
-            Log.d("Usuário",firebaseUsers[0].getUid());
-            PatientRepo.firebaseDb.collection("users").document(firebaseUsers[0].getUid()).collection("patients").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                    if(task.isSuccessful()){
-                        Log.d("UPDATE DATA","Contato com firebase bem sucedido");
-                        for(QueryDocumentSnapshot document : task.getResult()){
-                            Map<String, Object> data = document.getData();
-                            final PatientEntity patient = new PatientEntity();
-                            patient.setName((String)data.get("name"));
-                            patient.setAge(Integer.valueOf(data.get("age").toString()));
-
-                            Log.d("Patient Name",(String)data.get("name"));
-                            FirebaseStorage storage = FirebaseStorage.getInstance();
-                            StorageReference storageRef = storage.getReference();
-                            final StorageReference patientReference = storageRef.child(String.valueOf(firebaseUsers[0].getUid())+"/patients/");
-
-                            StorageReference profileReference = patientReference.child(document.getId());
-
-                            final long ONE_MEGA = 1024*1024;
-                            profileReference.getBytes(ONE_MEGA).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                                @Override
-                                public void onSuccess(byte[] bytes) {
-                                    if(bytes == null)
-                                    patient.setProfile(bytes);
-                                }
-                            });
-
-                            new insertPatientAsyncTask(asyncPatientDao).execute(patient);
-                        }
-                    }else{
-                        Log.d("Error","nao conectiou");
-                    }
-                }
-            });
-            return null;
-        }
-    }
     private static class insertPatientAsyncTask extends AsyncTask<PatientEntity,Integer,Void>{
 
         private PatientDao asyncPatientDao;

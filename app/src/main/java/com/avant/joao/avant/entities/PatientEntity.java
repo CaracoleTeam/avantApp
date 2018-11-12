@@ -22,7 +22,7 @@ public class PatientEntity  {
     public byte [] profile;
 
     public byte [] getProfile() {
-        return profile;
+        return this.profile;
     }
 
     public void setProfile(byte [] profile) {
@@ -56,6 +56,14 @@ public class PatientEntity  {
     public PatientEntity(String name, int age,byte [] profile) {
 
 
+        this.name = name;
+        this.age = age;
+        this.profile = profile;
+    }
+
+    public PatientEntity(int id,String name, int age,byte [] profile) {
+
+        this.pid = id;
         this.name = name;
         this.age = age;
         this.profile = profile;

@@ -117,6 +117,7 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
             public void onChanged(@Nullable ArrayList<Step> steps) {
                 mStepsAdapter.setSteps(steps);
                 mStepsAdapter.notifyDataSetChanged();
+                mStepsRecyclerView.smoothScrollToPosition(mStepsAdapter.getItemCount() -1);
                 mGaitCounterText.setText(String.valueOf(getStepsCount(listReference)));
             }
         });
@@ -232,6 +233,18 @@ public class GaitActivity extends AppCompatActivity implements View.OnClickListe
                     //para testes
 
                     ArrayList currentSteps = mStepsAdapter.getSteps();
+                    currentSteps.add(getStepFromRawData("pEt10l60"));
+                    addItem(listReference,1.0,60,'E');
+                    currentSteps.add(getStepFromRawData("pDt70l57"));
+                    addItem(listReference,7.0,57,'D');
+                    currentSteps.add(getStepFromRawData("pDt21l43"));
+                    addItem(listReference,2.1,43,'D');
+                    currentSteps.add(getStepFromRawData("pEt10l60"));
+                    addItem(listReference,1.0,60,'E');
+                    currentSteps.add(getStepFromRawData("pDt70l57"));
+                    addItem(listReference,7.0,57,'D');
+                    currentSteps.add(getStepFromRawData("pDt21l43"));
+                    addItem(listReference,2.1,43,'D');
                     currentSteps.add(getStepFromRawData("pEt10l60"));
                     addItem(listReference,1.0,60,'E');
                     currentSteps.add(getStepFromRawData("pDt70l57"));
